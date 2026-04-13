@@ -1,1 +1,73 @@
 
+```editorconfig
+# EditorConfig — ReadyCheck monorepo
+# https://editorconfig.org
+
+root = true
+
+# ─── Universal defaults ───────────────────────────────────────────────────────
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# ─── TypeScript / TSX / JavaScript / JSX ─────────────────────────────────────
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_size = 2
+
+# ─── JSON (package.json, tsconfig, app.json, etc.) ───────────────────────────
+[*.{json,jsonc}]
+indent_size = 2
+
+# ─── YAML (CI workflows, docker-compose, k8s manifests) ──────────────────────
+[*.{yml,yaml}]
+indent_size = 2
+
+# ─── Markdown ─────────────────────────────────────────────────────────────────
+# Two trailing spaces in Markdown create a hard line break — preserve them.
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# ─── Shell scripts ────────────────────────────────────────────────────────────
+[*.{sh,bash}]
+indent_size = 2
+
+# ─── Terraform ────────────────────────────────────────────────────────────────
+[*.{tf,tfvars}]
+indent_size = 2
+
+# ─── Dockerfile ───────────────────────────────────────────────────────────────
+[Dockerfile*]
+indent_size = 4
+
+# ─── Makefile (tabs required) ─────────────────────────────────────────────────
+[Makefile]
+indent_style = tab
+indent_size = 4
+
+# ─── CSS / SCSS / PostCSS ─────────────────────────────────────────────────────
+[*.{css,scss,postcss}]
+indent_size = 2
+
+# ─── HTML ─────────────────────────────────────────────────────────────────────
+[*.html]
+indent_size = 2
+
+# ─── GraphQL ──────────────────────────────────────────────────────────────────
+[*.{graphql,gql}]
+indent_size = 2
+
+# ─── .env files ───────────────────────────────────────────────────────────────
+[.env*]
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# ─── Lock files — do not modify ───────────────────────────────────────────────
+[{pnpm-lock.yaml,package-lock.json,yarn.lock}]
+insert_final_newline = false
+trim_trailing_whitespace = false
+```
