@@ -1,1 +1,34 @@
-
+### services/ai-orchestrator/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: services/ai-orchestrator/package.json",
+  "//_heading": "============================================================",
+  "name": "@readycheck/ai-orchestrator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ReadyCheck intelligence layer for plan ingestion and assessment generation",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.1.0",
+    "@readycheck/core-types": "workspace:*",
+    "@readycheck/utils": "workspace:*",
+    "zod": "^3.21.0"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "tsup": "^7.1.0",
+    "typescript": "^5.1.0",
+    "vitest": "^0.33.0"
+  }
+}
+```
