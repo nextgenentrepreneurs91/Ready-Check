@@ -1,1 +1,10 @@
+# pnpm-workspace.yaml
 
+packages:
+  - 'apps/*'
+  - 'backend/*'
+  - 'packages/*'
+  - 'tests/*'
+  - 'scripts/*'
+  - '!**/node_modules/**'
+  - '!**/dist/**'
