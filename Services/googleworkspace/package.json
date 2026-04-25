@@ -1,1 +1,33 @@
-
+### services/google-workspace/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: services/google-workspace/package.json",
+  "//_heading": "============================================================",
+  "name": "@readycheck/google-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Integration layer for Google Workspace services including Forms, Maps, and Meet",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "googleapis": "^122.0.0",
+    "@googlemaps/google-maps-services-js": "^3.3.31",
+    "@readycheck/core-types": "workspace:*",
+    "@readycheck/utils": "workspace:*",
+    "zod": "^3.21.0"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "tsup": "^7.1.0",
+    "typescript": "^5.1.0"
+  }
+}
+```
