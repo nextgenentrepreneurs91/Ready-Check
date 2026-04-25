@@ -1,1 +1,33 @@
-
+### services/trust-engine/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: services/trust-engine/package.json",
+  "//_heading": "============================================================",
+  "name": "@readycheck/trust-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scoring and reputation logic for operator trust, NGO partnerships, and peer feedback",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@readycheck/core-types": "workspace:*",
+    "@readycheck/utils": "workspace:*",
+    "zod": "^3.21.0"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "tsup": "^7.1.0",
+    "typescript": "^5.1.0",
+    "vitest": "^0.33.0"
+  }
+}
+```
