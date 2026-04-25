@@ -1,1 +1,71 @@
+```yaml
+version: '3.8'
 
+services:
+  # Primary Operational Database
+  db:
+    image: postgres:15-alpine
+    container_name: readycheck-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-readycheck}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Real-time State & Sync Queues
+  cache:
+    image: redis:7-alpine
+    container_name: readycheck-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # ReadyCheck Backend API
+  api:
+    build:
+      context: .
+      dockerfile: ./backend/api/Dockerfile
+    container_name: readycheck-api
+    restart: always
+    depends_on:
+      - db
+      - cache
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-readycheck}
+      REDIS_URL: redis://cache:6379
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_key}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-placeholder}
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/backend/api/node_modules
+
+  # Web Dashboard (Coordinator/Executive Portal)
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: readycheck-web
+    restart: always
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://api:4000/api/v1
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+
+volumes:
+  postgres_data:
+```
