@@ -1,1 +1,33 @@
-
+{
+  "name": "ready-check",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ReadyCheck: Disaster-response and operational readiness platform.",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "web:dev": "pnpm --filter web dev",
+    "api:dev": "pnpm --filter api dev",
+    "mobile:dev": "pnpm --filter mobile dev",
+    "infra:up": "docker-compose up -d",
+    "infra:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.0",
+    "typescript": "^5.1.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.45.0",
+    "husky": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.6.0"
+}
