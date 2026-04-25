@@ -1,1 +1,36 @@
-
+### tsconfig.base.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: tsconfig.base.json",
+  "//_heading": "============================================================",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2021",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "incremental": true,
+    
+    // Safety & Quality
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": true,
+    
+    // Path Aliasing
+    "baseUrl": ".",
+    "paths": {
+      "@readycheck/*": ["packages/*/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".turbo"]
+}
+```
