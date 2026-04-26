@@ -1,1 +1,29 @@
-
+### packages/utils/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: packages/utils/package.json",
+  "//_heading": "============================================================",
+  "name": "@readycheck/utils",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-cutting utilities and domain helpers for ReadyCheck",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "zod": "^3.21.0"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "typescript": "^5.1.0",
+    "tsup": "^7.1.0"
+  }
+}
+```
