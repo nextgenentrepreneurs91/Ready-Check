@@ -1,1 +1,34 @@
-
+// apps/mobile/tsconfig.json
+```json
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react-native",
+    "lib": ["esnext"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "target": "esnext"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "App.tsx",
+    "app.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js"
+  ]
+}
+```
