@@ -1,1 +1,31 @@
-
+### packages/api-client/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: packages/api-client/package.json",
+  "//_desc": "Shared TypeScript API client for the ReadyCheck ecosystem",
+  "//_heading": "============================================================",
+  "name": "@readycheck/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@readycheck/core-types": "workspace:*",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "typescript": "^5.1.0",
+    "tsup": "^7.1.0",
+    "eslint": "^8.45.0"
+  }
+}
+```
