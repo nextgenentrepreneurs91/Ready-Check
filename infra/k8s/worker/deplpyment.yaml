@@ -1,1 +1,53 @@
-
+# infra/k8s/worker/deployment.yaml
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: readycheck-worker
+  labels:
+    app: readycheck
+    component: worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: readycheck
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: readycheck
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: readycheck-worker:latest # Typically replaced by CI/CD tag
+          imagePullPolicy: IfNotPresent
+          # Load operational constants from the ConfigMap
+          envFrom:
+            - configMapRef:
+                name: readycheck-worker-config
+          # Load sensitive connection strings from Secrets
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: readycheck-secrets
+                  key: database-url
+            - name: REDIS_URL
+              value: "redis://readycheck-redis-service:6379"
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: readycheck-secrets
+                  key: gemini-api-key
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
+          # Workers don't typically need Readiness/Liveness HTTP probes unless they
+          # expose an internal health check port (e.g., via a small Express server).
+```
