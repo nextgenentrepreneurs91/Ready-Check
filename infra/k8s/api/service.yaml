@@ -1,1 +1,20 @@
-
+# infra/k8s/api/service.yaml
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: readycheck-api-service
+  labels:
+    app: readycheck
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 4000
+      protocol: TCP
+      name: http
+  selector:
+    app: readycheck
+    component: api
+```
