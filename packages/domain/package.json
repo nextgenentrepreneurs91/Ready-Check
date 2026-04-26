@@ -1,1 +1,29 @@
-
+### packages/domain/package.json
+```json
+{
+  "//": "============================================================",
+  "//_file": "FILE: packages/domain/package.json",
+  "//_heading": "============================================================",
+  "name": "@readycheck/domain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Core domain entities, logic, and constants for ReadyCheck",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "lint": "eslint index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@readycheck/core-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@readycheck/tsconfig": "workspace:*",
+    "tsup": "^7.1.0",
+    "typescript": "^5.1.0"
+  }
+}
+```
