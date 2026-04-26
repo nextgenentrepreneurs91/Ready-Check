@@ -1,1 +1,28 @@
+# infra/k8s/worker/configmap.yaml
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: readycheck-worker-config
+  labels:
+    app: readycheck
+    component: worker
+data:
+  # Operational Sync Settings
+  SYNC_BATCH_SIZE: "50"
+  SYNC_QUEUE_RETRY_DELAY_MS: "5000"
+  
+  # Trust & Scoring Thresholds
+  TRUST_RECALCULATION_CRON: "0 0 * * *" # Daily at midnight
+  SCORING_WEIGHT_READINESS: "0.4"
+  SCORING_WEIGHT_RELIABILITY: "0.4"
+  SCORING_WEIGHT_FEEDBACK: "0.2"
 
+  # AI Orchestration Limits
+  AI_CONCURRENCY_LIMIT: "5"
+  AI_REALITY_CHECK_TIMEOUT_SEC: "30"
+
+  # System Defaults
+  LOG_LEVEL: "info"
+  MAX_READINESS_RETRY_COUNT: "3"
+```_
