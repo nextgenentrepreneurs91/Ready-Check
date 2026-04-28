@@ -1,1 +1,153 @@
 
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "release/**"
+    paths:
+      - "apps/web/**"
+      - "apps/admin/**"
+      - "packages/**"
+      - "services/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Deployment environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+      deploy_admin:
+        description: "Deploy admin surface"
+        required: true
+        default: true
+        type: boolean
+      deploy_web:
+        description: "Deploy web surface"
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: deploy-web-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-web:
+    name: Lint, Typecheck, Test, Build, and Deploy Web Surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.target_env || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+
+    env:
+      CI: true
+      NODE_ENV: production
+      DEPLOY_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.target_env || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+      READYCHECK_WEB_URL: ${{ vars.READYCHECK_WEB_URL }}
+      READYCHECK_ADMIN_URL: ${{ vars.READYCHECK_ADMIN_URL }}
+      READYCHECK_API_BASE_URL: ${{ vars.READYCHECK_API_BASE_URL }}
+      DEPLOY_WEB_TOKEN: ${{ secrets.DEPLOY_WEB_TOKEN }}
+      DEPLOY_ADMIN_TOKEN: ${{ secrets.DEPLOY_ADMIN_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo
+            **/.turbo
+          key: ${{ runner.os }}-turbo-web-${{ github.ref_name }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'package.json', 'apps/web/package.json', 'apps/admin/package.json', 'packages/**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-web-${{ github.ref_name }}-
+            ${{ runner.os }}-turbo-web-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build web app
+        if: github.event_name != 'workflow_dispatch' || inputs.deploy_web
+        run: pnpm --filter ./apps/web build
+
+      - name: Build admin app
+        if: github.event_name != 'workflow_dispatch' || inputs.deploy_admin
+        run: pnpm --filter ./apps/admin build
+
+      - name: Verify web deployment token
+        if: (github.event_name != 'workflow_dispatch' || inputs.deploy_web) && env.DEPLOY_WEB_TOKEN == ''
+        run: |
+          echo "DEPLOY_WEB_TOKEN is not configured."
+          exit 1
+
+      - name: Verify admin deployment token
+        if: (github.event_name != 'workflow_dispatch' || inputs.deploy_admin) && env.DEPLOY_ADMIN_TOKEN == ''
+        run: |
+          echo "DEPLOY_ADMIN_TOKEN is not configured."
+          exit 1
+
+      - name: Deploy web surface (placeholder)
+        if: github.event_name != 'workflow_dispatch' || inputs.deploy_web
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_WEB_TOKEN }}
+        run: |
+          echo "Deploying ReadyCheck web to ${DEPLOY_ENV}"
+          echo "Target URL: ${READYCHECK_WEB_URL}"
+          # Replace with platform-specific deploy command, for example:
+          # pnpm dlx <deployment-cli> deploy --app web --env "${DEPLOY_ENV}" --token "${DEPLOY_TOKEN}"
+
+      - name: Deploy admin surface (placeholder)
+        if: github.event_name != 'workflow_dispatch' || inputs.deploy_admin
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_ADMIN_TOKEN }}
+        run: |
+          echo "Deploying ReadyCheck admin to ${DEPLOY_ENV}"
+          echo "Target URL: ${READYCHECK_ADMIN_URL}"
+          # Replace with platform-specific deploy command, for example:
+          # pnpm dlx <deployment-cli> deploy --app admin --env "${DEPLOY_ENV}" --token "${DEPLOY_TOKEN}"
+
+      - name: Deployment summary
+        run: |
+          {
+            echo "## ReadyCheck Web Deployment"
+            echo ""
+            echo "- Environment: ${DEPLOY_ENV}"
+            echo "- Branch: ${GITHUB_REF_NAME}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Web deployed: ${{ github.event_name != 'workflow_dispatch' || inputs.deploy_web }}"
+            echo "- Admin deployed: ${{ github.event_name != 'workflow_dispatch' || inputs.deploy_admin }}"
+          } >> "$GITHUB_STEP_SUMMARY"
