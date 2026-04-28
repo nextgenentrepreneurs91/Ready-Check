@@ -1,0 +1,153 @@
+
+name: Deploy Mobile
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "release/**"
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "services/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/deploy-mobile.yml"
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Deployment environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+      release_channel:
+        description: "Expo release channel"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: deploy-mobile-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-mobile:
+    name: Lint, Typecheck, Test, and Deploy Mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.target_env || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+
+    env:
+      CI: true
+      NODE_ENV: production
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}
+      READYCHECK_API_BASE_URL: ${{ vars.READYCHECK_API_BASE_URL }}
+      READYCHECK_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.target_env || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+      EXPO_USE_LOCAL_CLI: 1
+
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo
+            **/.turbo
+          key: ${{ runner.os }}-turbo-mobile-${{ github.ref_name }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'package.json', 'apps/mobile/package.json', 'packages/**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-mobile-${{ github.ref_name }}-
+            ${{ runner.os }}-turbo-mobile-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: .
+
+      - name: Verify Expo token is configured
+        run: |
+          if [ -z "${EXPO_TOKEN}" ]; then
+            echo "EXPO_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Lint mobile workspace
+        run: pnpm lint
+
+      - name: Typecheck mobile workspace
+        run: pnpm typecheck
+
+      - name: Test mobile workspace
+        run: pnpm test -- --runInBand
+
+      - name: Setup Expo and EAS CLI
+        run: pnpm dlx eas-cli --version
+
+      - name: Resolve release channel
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "channel=${{ inputs.release_channel }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "channel=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish OTA update (placeholder)
+        run: |
+          pnpm dlx eas-cli update \
+            --branch "${{ steps.release.outputs.channel }}" \
+            --message "ReadyCheck mobile deploy from ${GITHUB_SHA}" \
+            --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Trigger EAS build (placeholder)
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && inputs.target_env == 'production')
+        run: |
+          pnpm dlx eas-cli build \
+            --platform all \
+            --profile production \
+            --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Deployment summary
+        run: |
+          {
+            echo "## ReadyCheck Mobile Deployment"
+            echo ""
+            echo "- Environment: ${READYCHECK_ENVIRONMENT}"
+            echo "- Release channel: ${{ steps.release.outputs.channel }}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Branch: ${GITHUB_REF_NAME}"
+          } >> "$GITHUB_STEP_SUMMARY"
